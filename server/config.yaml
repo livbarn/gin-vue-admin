@@ -6,14 +6,14 @@ casbin:
 
 # jwt configuration
 jwt:
-    signing-key: 'qmPlus'
+    signing-key: 'liv123kkk'
 
 # mysql connect configuration
 mysql:
     username: root
-    password: 'Aa@6447985'
-    path: '127.0.0.1:3306'
-    db-name: 'qmPlus'
+    password: '123kkk'
+    path: '192.168.224.9:3306'
+    db-name: 'catman'
     config: 'charset=utf8mb4&parseTime=True&loc=Local'
     max-idle-conns: 10
     max-open-conns: 10
@@ -36,7 +36,7 @@ qiniu:
 
 # redis configuration
 redis:
-    addr: '127.0.0.1:6379'
+    addr: '192.168.224.7:6379'
     password: ''
     db: 0
 
