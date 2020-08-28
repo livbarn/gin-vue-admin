@@ -13,7 +13,7 @@ mysql:
     username: root
     password: '123kkk'
     path: '192.168.224.9:3306'
-    db-name: 'catman'
+    db-name: 'cutman'
     config: 'charset=utf8mb4&parseTime=True&loc=Local'
     max-idle-conns: 10
     max-open-conns: 10

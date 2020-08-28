@@ -1,3 +1,4 @@
+server/gin-vue-admin
 .idea/
 /web/node_modules
 /web/dist
