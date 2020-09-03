@@ -10,11 +10,12 @@ import (
 	resp "gin-vue-admin/model/response"
 	"gin-vue-admin/service"
 	"gin-vue-admin/utils"
+	"mime/multipart"
+	"time"
+
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis"
-	"mime/multipart"
-	"time"
 )
 
 // @Tags Base
@@ -90,7 +91,7 @@ func tokenNext(c *gin.Context, user model.SysUser) {
 		NickName:    user.NickName,
 		Username:    user.Username,
 		AuthorityId: user.AuthorityId,
-		BufferTime:  60*60*24, // 缓冲时间1天 缓冲时间内会获得新的token刷新令牌 此时一个用户会存在两个有效令牌 但是前端只留一个 另一个会丢失
+		BufferTime:  60 * 60 * 24, // 缓冲时间1天 缓冲时间内会获得新的token刷新令牌 此时一个用户会存在两个有效令牌 但是前端只留一个 另一个会丢失
 		StandardClaims: jwt.StandardClaims{
 			NotBefore: time.Now().Unix() - 1000,       // 签名生效时间
 			ExpiresAt: time.Now().Unix() + 60*60*24*7, // 过期时间 7天
@@ -220,13 +221,17 @@ func UploadHeaderImg(c *gin.Context) {
 // @Router /user/getUserList [post]
 func GetUserList(c *gin.Context) {
 	var pageInfo request.PageInfo
+	claims, _ := c.Get("claims")
+	waitUse := claims.(*request.CustomClaims)
 	_ = c.ShouldBindJSON(&pageInfo)
 	PageVerifyErr := utils.Verify(pageInfo, utils.CustomizeMap["PageVerify"])
 	if PageVerifyErr != nil {
 		response.FailWithMessage(PageVerifyErr.Error(), c)
 		return
 	}
-	err, list, total := service.GetUserInfoList(pageInfo)
+
+	//用户信息定义为资源
+	err, list, total := service.GetUserInfoList(waitUse.AuthorityId, pageInfo)
 	if err != nil {
 		response.FailWithMessage(fmt.Sprintf("获取数据失败，%v", err), c)
 	} else {

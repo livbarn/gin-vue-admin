@@ -6,6 +6,7 @@ import (
 	"gin-vue-admin/model"
 	"gin-vue-admin/model/request"
 	"gin-vue-admin/utils"
+
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -65,17 +66,31 @@ func ChangePassword(u *model.SysUser, newPassword string) (err error, userInter 
 // @description   get user list by pagination, 分页获取数据
 // @auth                      （2020/04/05  20:22）
 // @param     info             request.PageInfo
+// @param     sysUserAuthorityID string
 // @return    err              error
 // @return    list             interface{}
 // @return    total            int
 
-func GetUserInfoList(info request.PageInfo) (err error, list interface{}, total int) {
+func GetUserInfoList(currentUser string, info request.PageInfo) (err error, list interface{}, total int) {
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
-	db := global.GVA_DB.Model(&model.SysUser{})
+
 	var userList []model.SysUser
-	err = db.Count(&total).Error
-	err = db.Limit(limit).Offset(offset).Preload("Authority").Find(&userList).Error
+
+	var a model.SysAuthority
+	a.AuthorityId = currentUser
+	err, auth := GetAuthorityInfo(a)
+	var dataId []string
+	for _, v := range auth.DataAuthorityId {
+		if v.AuthorityId == currentUser {
+			continue
+		}
+		dataId = append(dataId, v.AuthorityId)
+	}
+
+	db := global.GVA_DB.Model(&model.SysUser{})
+	err = db.Where("authority_id in (?)", dataId).Count(&total).Error
+	err = db.Limit(limit).Offset(offset).Preload("Authority").Where("authority_id in (?)", dataId).Find(&userList).Error
 	return err, userList, total
 }
 

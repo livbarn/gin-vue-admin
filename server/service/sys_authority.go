@@ -105,12 +105,13 @@ func DeleteAuthority(auth *model.SysAuthority) (err error) {
 // @return                    error
 // 分页获取数据
 
-func GetAuthorityInfoList(info request.PageInfo) (err error, list interface{}, total int) {
+func GetAuthorityInfoList(sysUserAuthorityID string, info request.PageInfo) (err error, list interface{}, total int) {
 	limit := info.PageSize
 	offset := info.PageSize * (info.Page - 1)
+
 	db := global.GVA_DB
 	var authority []model.SysAuthority
-	err = db.Limit(limit).Offset(offset).Preload("DataAuthorityId").Where("parent_id = 0").Find(&authority).Error
+	err = db.Limit(limit).Offset(offset).Preload("DataAuthorityId").Where("parent_id = ?", sysUserAuthorityID).Find(&authority).Error
 	if len(authority) > 0 {
 		for k := range authority {
 			err = findChildrenAuthority(&authority[k])
